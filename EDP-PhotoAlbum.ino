@@ -2,7 +2,15 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <GxEPD2_3C.h>
-
+#include <Fonts/FreeMonoBold12pt7b.h>
+/*
+#define BUSY_Pin  0
+#define RES_Pin   6
+#define DC_Pin    1
+#define CS_Pin    7
+#define SCK_Pin   2
+#define SDI_Pin   3
+*/
 #define BUSY_Pin  8
 #define RES_Pin   6
 #define DC_Pin    9
@@ -14,11 +22,13 @@
 #define EPD_H  300
 #define BUF_SIZE  (EPD_W * EPD_H / 8)   // 15000 字节
 
-GxEPD2_3C<GxEPD2_420c_Z21, EPD_H> display(GxEPD2_420c_Z21(CS_Pin, DC_Pin, RES_Pin, BUSY_Pin));
 
-const char *ssid     = "ESP32-Hotspot";
+GxEPD2_3C<GxEPD2_420c_Z21, EPD_W> display(GxEPD2_420c_Z21(CS_Pin, DC_Pin, RES_Pin, BUSY_Pin));
+//GxEPD2_3C<GxEPD2_420c_E042A13, EPD_W> display(GxEPD2_420c_E042A13(CS_Pin, DC_Pin, RES_Pin, BUSY_Pin));
+const char *ssid     = "EDP-PhotoAlbum";
 const char *password = "12345678";
-IPAddress local_IP(192, 168, 1, 1);
+
+IPAddress local_IP(192, 168, 3, 7);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
@@ -64,7 +74,44 @@ void handleUpload() {
     }
   }
 }
+/* ---------- 新增：显示 AP 信息 ---------- */
+void showAPInfo() {
+  display.firstPage();
+  do {
+    display.fillScreen(GxEPD_WHITE);
 
+    // 选用合适字号，这里用 16 像素高的字体
+    display.setFont(&FreeMonoBold12pt7b);
+    display.setTextColor(GxEPD_BLACK);
+    display.setTextWrap(false);
+
+    String s1 = "WiFi: " + String(ssid);
+    String s2 = "PWD:  " + String(password);
+    const char *txt1 = s1.c_str();
+    const char *txt2 = s2.c_str();
+    const char *txt3 = "IP:   192.168.3.7";
+
+    int16_t tbx, tby; uint16_t tbw, tbh;
+
+    // 1. 整体居中计算
+    display.getTextBounds(txt1, 0, 0, &tbx, &tby, &tbw, &tbh);
+    int y = (EPD_H - 3 * tbh - 10) / 2 - tby;   // 3 行 + 10 像素间隙
+    int x = (EPD_W - tbw) / 2 - tbx;
+
+    display.setCursor(x, y);
+    display.print(txt1);
+
+    display.getTextBounds(txt2, 0, 0, &tbx, &tby, &tbw, &tbh);
+    x = (EPD_W - tbw) / 2 - tbx;
+    display.setCursor(x, y + tbh + 5);
+    display.print(txt2);
+
+    display.getTextBounds(txt3, 0, 0, &tbx, &tby, &tbw, &tbh);
+    x = (EPD_W - tbw) / 2 - tbx;
+    display.setCursor(x, y + 2 * (tbh + 5));
+    display.print(txt3);
+  } while (display.nextPage());
+}
 /* ---------- 刷图 ---------- */
 void renderImageFromFlash(const char *bwPath, const char *redPath) {
   File f = SPIFFS.open(bwPath, FILE_READ);
@@ -102,10 +149,10 @@ void setup() {
   }
 
   display.init();
-  display.setRotation(1);
+  display.setRotation(0);
   display.fillScreen(GxEPD_WHITE);
   display.display();   // 清屏一次
-
+  
   WiFi.softAPConfig(local_IP, gateway, subnet);
   WiFi.softAP(ssid, password);
   Serial.print("AP IP: "); Serial.println(WiFi.softAPIP());
@@ -114,6 +161,7 @@ void setup() {
             []() { server.send(200, "text/plain", "Upload complete"); },
             handleUpload);
   server.begin();
+  showAPInfo();
 }
 
 void loop() {
