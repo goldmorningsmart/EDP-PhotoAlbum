@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-REM 1. 清理旧目录并建立结构
+REM 1. 清理旧目录
 rmdir /s /q build dist 2>nul
 
 REM 2. 编译源代码到 classes

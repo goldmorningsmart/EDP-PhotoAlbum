@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# 1. 清理旧目录并建立结构
+# 1. 清理旧目录
 rm -rf build dist
 
 # 2. 编译源代码到 classes

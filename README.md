@@ -118,7 +118,7 @@ void setup() {
 @echo off
 setlocal
 
-REM 1. 清理旧目录并建立结构
+REM 1. 清理旧目录
 rmdir /s /q build dist 2>nul
 
 REM 2. 编译源代码到 classes
@@ -151,12 +151,8 @@ pause
 @echo off
 setlocal
 
-REM 1. 清理旧目录并建立结构
+REM 1. 清理旧目录
 rmdir /s /q build dist 2>nul
-mkdir build\classes
-mkdir build\jar
-mkdir build\runtime
-mkdir dist
 
 REM 2. 编译源代码到 classes
 D:\java\bin\javac -d build\classes src\EPDUploaderSwing.java
@@ -192,9 +188,8 @@ pause
 #!/bin/bash
 set -e
 
-# 1. 清理旧目录并建立结构
+# 1. 清理旧目录
 rm -rf build dist
-mkdir -p build/classes build/jar build/runtime dist
 
 # 2. 编译源代码到 classes
 javac -d build/classes src/EPDUploaderSwing.java
