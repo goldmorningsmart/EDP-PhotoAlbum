@@ -45,10 +45,10 @@
 * https://oshwhub.com/z294933698/4-2-cun-mo-shui-ping-gai_copy
 
 
-### **Arduino和上位机代码**
+### **PCB开源**
 
-开源地址：https://github.com/goldmorningsmart/EDP-PhotoAlbum。
-
+PCB开源地址：https://oshwhub.com/sadadaw/epd_photoalbum-kai-yuan-ban
+  
 上位机使用java开发
 ![截屏2025-09-26 20.12.07.png](doc/3.png)
 
