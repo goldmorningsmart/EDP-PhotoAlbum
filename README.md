@@ -71,9 +71,41 @@ PCB开源地址：https://oshwhub.com/sadadaw/epd_photoalbum-kai-yuan-ban
 
 
  
+## 💻编译固件
+需要修改ESP32C3默认SPI的管脚来匹配PCB的设计
+### 方法一
+> Arduino15/packages/esp32/hardware/esp32/<版本号>/variants/esp32c3/pins_arduino.h
 
+例如我的文件在
+> C:\Users\Administrator\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11\variants\esp32c3\pins_arduino.h
 
+将SPI管脚定义修改成下面这样
+```C
+static const uint8_t SS    = 7;
+static const uint8_t MOSI  = 3;
+static const uint8_t MISO  = 10;
+static const uint8_t SCK   = 2;
+```
+**检查是否与IIC接口的管脚冲突**
+### 方法二  
 
+在代码中加入
+```C
+#include <SPI.h>
+
+void setup() {
+  // 自定义 SPI 引脚
+  int SCK  = 2;   // 时钟
+  int MISO = 10;   // 主输入
+  int MOSI = 3;   // 主输出
+  int CS   = 7;  // 片选
+
+  SPI.begin(SCK, MISO, MOSI, CS);
+  //将SPI传递给GxEPD
+}
+
+```
+**使用此方法，我不了解如何将配置后的SPI传递给GxEPD的显示屏，需要自行研究**
 
 ## 💻编译上位机
 ### 一、先编译成 JAR

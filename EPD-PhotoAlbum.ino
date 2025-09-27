@@ -15,9 +15,17 @@
 #define RES_Pin   6
 #define DC_Pin    9
 #define CS_Pin    7
-#define SCK_Pin   2
-#define SDI_Pin   3
-
+//#define SCK_Pin   2
+//#define SDI_Pin   3
+/*
+找到
+Arduino15/packages/esp32/hardware/esp32/<版本号>/variants/esp32c3/pins_arduino.h
+将SPI管脚定义修改成下面这样
+static const uint8_t SS    = 7;
+static const uint8_t MOSI  = 3;
+static const uint8_t MISO  = 10;
+static const uint8_t SCK   = 2;
+*/
 #define EPD_W  400
 #define EPD_H  300
 #define BUF_SIZE  (EPD_W * EPD_H / 8)   // 15000 字节
@@ -28,7 +36,7 @@ GxEPD2_3C<GxEPD2_420c_Z21, EPD_W> display(GxEPD2_420c_Z21(CS_Pin, DC_Pin, RES_Pi
 const char *ssid     = "EDP-PhotoAlbum";
 const char *password = "12345678";
 
-IPAddress local_IP(192, 168, 3, 7);
+IPAddress local_IP(192, 168, 3, 7);//初始化时墨水屏显示的IP地址，需要在showAPInfo函数中配置
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
