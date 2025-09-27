@@ -16,5 +16,5 @@
 *.sw?
 *.zip
 
-/EPDUploaderSwing/EPDUploaderSwing.app
-/EPDUploaderSwing/runtime
+/EPDUploaderSwing/build
+/EPDUploaderSwing/dist

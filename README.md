@@ -108,76 +108,117 @@ void setup() {
 **使用此方法，我不了解如何将配置后的SPI传递给GxEPD的显示屏，需要自行研究**
 
 ## 💻编译上位机
-### 一、先编译成 JAR
-
-```bash
-# 编译
-javac EPDUploaderSwing.java -d out
-
-# 打包 JAR（指定主类）
-jar --create --file EPDUploaderSwing.jar --main-class EPDUploaderSwing -C out .
-```
-
-### 二、用 jpackage 生成应用
 
  依赖需求：JDK ≥ 14
 
-#### Windows 生成exe：
+### Windows 生成exe：
 
+如果没有定义Java的环境变量，将绝对路径写入命令
 ```bash
-jlink \
-  --module-path $JAVA_HOME/jmods \
-  --add-modules java.base,java.desktop \
-  --output runtime
+@echo off
+setlocal
 
-jpackage --name EPDUploaderSwing \
-  --input . \
-  --main-jar EPDUploaderSwing.jar \
-  --main-class EPDUploaderSwing \
-  --type app-image\
-   --runtime-image runtime\
-  --icon EPDUploaderSwing.icon
+REM 1. 清理旧目录并建立结构
+rmdir /s /q build dist 2>nul
+
+REM 2. 编译源代码到 classes
+javac -d build\classes src\EPDUploaderSwing.java
+
+REM 3. 打包成 JAR，指定入口类
+jar -c -f build\jar\EPDUploaderSwing.jar -e EPDUploaderSwing -C build\classes .
+
+REM 4. jlink：生成精简的自定义运行时
+jlink ^
+  --module-path "%JAVA_HOME%\jmods" ^
+  --add-modules java.base,java.desktop ^
+  --output build\runtime
+
+REM 5. jpackage：打包 app-image
+jpackage ^
+  --name EPDUploaderSwing ^
+  --input build\jar ^
+  --main-jar EPDUploaderSwing.jar ^
+  --type app-image ^
+  --runtime-image build\runtime ^
+  --icon EPDUploaderSwing.ico ^
+  --dest dist
+
+echo ✅ 构建完成，应用输出在 dist\EPDUploaderSwing
+pause
 ```
+例如
+```bash
+@echo off
+setlocal
 
-生成目录类似：
+REM 1. 清理旧目录并建立结构
+rmdir /s /q build dist 2>nul
+mkdir build\classes
+mkdir build\jar
+mkdir build\runtime
+mkdir dist
+
+REM 2. 编译源代码到 classes
+D:\java\bin\javac -d build\classes src\EPDUploaderSwing.java
+
+REM 3. 打包成 JAR，指定入口类
+D:\java\bin\jar -c -f build\jar\EPDUploaderSwing.jar -e EPDUploaderSwing -C build\classes .
+
+REM 4. jlink：生成精简的自定义运行时
+D:\java\bin\jlink ^
+  --module-path "D:\java\jmods" ^
+  --add-modules java.base,java.desktop ^
+  --output build\runtime
+
+REM 5. jpackage：打包 app-image
+D:\java\bin\jpackage ^
+  --name EPDUploaderSwing ^
+  --input build\jar ^
+  --main-jar EPDUploaderSwing.jar ^
+  --type app-image ^
+  --runtime-image build\runtime ^
+  --icon EPDUploaderSwing.ico ^
+  --dest dist
+
+echo ✅ 构建完成，应用输出在 dist\EPDUploaderSwing
+pause
 
 ```
-EPDUploaderSwing/
-├── bin/EPDUploaderSwing.exe
-├── lib/（依赖jar）
-```
-
-直接运行 `bin/EPDUploaderSwing.exe` 就行。
 
 ---
 
-#### macOS 生成app：
-
+### macOS 生成app：
 ```bash
+#!/bin/bash
+set -e
+
+# 1. 清理旧目录并建立结构
+rm -rf build dist
+mkdir -p build/classes build/jar build/runtime dist
+
+# 2. 编译源代码到 classes
+javac -d build/classes src/EPDUploaderSwing.java
+
+# 3. 打包成 JAR，指定入口类
+jar -c -f build/jar/EPDUploaderSwing.jar -e EPDUploaderSwing -C build/classes .
+
+# 4. jlink：生成精简的自定义运行时
 jlink \
-  --module-path $JAVA_HOME/jmods \
+  --module-path "$JAVA_HOME/jmods" \
   --add-modules java.base,java.desktop \
-  --output runtime
+  --output build/runtime
 
-jpackage --name EPDUploaderSwing \
-  --input . \
+# 5. jpackage：打包 app-image
+jpackage \
+  --name EPDUploaderSwing \
+  --input build/jar \
   --main-jar EPDUploaderSwing.jar \
-  --main-class EPDUploaderSwing \
-  --type app-image\
-   --runtime-image runtime\
-  --icon EPDUploaderSwing.icns
+  --type app-image \
+  --runtime-image build/runtime \
+  --icon EPDUploaderSwing.icns \
+  --dest dist
+
+echo "✅ 构建完成，应用输出在 dist/EPDUploaderSwing.app"
+
 
 ```
-
-生成的目录类似：
-
-```
-EPDUploaderSwing.app/
-└── Contents/
-    ├── Info.plist
-    ├── MacOS/EPDUploaderSwing
-    └── Resources/app
-```
-
-双击 `EPDUploaderSwing.app` 就能运行。
-
